@@ -12,6 +12,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Catalog.Repository;
+using MongoDB.Driver;
+using Catalog.Settings;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson;
 
 namespace Catalog
 {
@@ -28,7 +33,15 @@ namespace Catalog
         public void ConfigureServices(IServiceCollection services)
         {
 
-            services.AddSingleton<IItemsRepository, InMemItemsRepository>();
+            BsonSerializer.RegisterSerializer(new GuidSerializer(BsonType.String));
+            BsonSerializer.RegisterSerializer(new DateTimeOffsetSerializer(BsonType.String));
+
+            services.AddSingleton<IMongoClient>(serviceProvider => 
+            {
+                var settings = Configuration.GetSection(nameof(MongoDbSettings)).Get<MongoDbSettings>();
+                return new MongoClient(settings.ConnectionString);
+            });
+            services.AddSingleton<IItemsRepository, MongoDbItemsRepository>();
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
