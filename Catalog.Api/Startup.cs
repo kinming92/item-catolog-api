@@ -12,9 +12,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Catalog.Repository;
+using Catalog.Api.Repository;
 using MongoDB.Driver;
-using Catalog.Settings;
+using Catalog.Api.Settings;
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson;
@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 
-namespace Catalog
+namespace Catalog.Api
 {
     public class Startup
     {
@@ -72,7 +72,11 @@ namespace Catalog
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Catalog v1"));
             }
 
-            app.UseHttpsRedirection();
+            if (env.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+
+            }
 
             app.UseRouting();
 
